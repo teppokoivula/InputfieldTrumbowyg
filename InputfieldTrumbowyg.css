@@ -1,0 +1,8 @@
+.InputfieldTrumbowyg .trumbowyg-button-pane li {
+    margin: 0;
+}
+
+.InputfieldTrumbowyg .trumbowyg-box,
+.InputfieldTrumbowyg .trumbowyg-editor {
+    width: 100%;
+}

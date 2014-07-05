@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * ProcessWire inputfield module for Trumbowyg WYSIWYG editor
+ * 
+ * @copyright Copyright (c) 2013-2014, Teppo Koivula
+ * @license http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License, version 2
+ *
+ * ProcessWire 2.x 
+ * Copyright (C) 2013 by Ryan Cramer 
+ * Licensed under GNU/GPL v2, see LICENSE.TXT
+ * 
+ * http://processwire.com
+ *
+ * Trumbowyg Copyright (c) 2012-2014 Alexandre Demode (Alex-D)
+ * http://alex-d.github.io/Trumbowyg/
+ *
+ */
+class InputfieldTrumbowyg extends InputfieldTextarea {
+
+    public static function getModuleInfo() {
+        return array(
+            'title' => 'Trumbowyg',
+            'version' => 1,
+            'summary' => __('Trumbowyg textarea rich text editor (alpha module)', __FILE__),
+        );
+    }
+
+    /**
+     * Construct and set default configuration
+     *
+     */
+    public function __construct() {
+        parent::__construct();
+    }
+
+    /**
+     * Render the output code for Trumbowyg
+     *
+     */
+    public function ___render() {
+
+        // load trumbowyg
+        $this->config->scripts->add($this->config->urls->{$this->className()} . "trumbowyg/trumbowyg.min.js"); 
+        $this->config->styles->add($this->config->urls->{$this->className()} . "trumbowyg/design/css/trumbowyg.css"); 
+
+        return parent::___render() . "<script>$('textarea[name={$this->name}]').trumbowyg();</script>";
+
+    }
+
+    /**
+     * Process data submitted to a Trumbowyg field
+     *
+     */
+    public function ___processInput(WireInputData $input) {
+
+        $value = trim($input[$this->name]); 
+
+        if ($value != $this->attr('value')) {
+            $this->trackChange('value');
+            $this->setAttribute('value', $value);     
+        }
+
+        return $this;
+
+    }
+
+    /*
+     * Inputfield configuration screen
+     *
+     */
+    public function ___getConfigInputfields() {
+
+        $inputfields = parent::___getConfigInputfields();
+
+        // @todo http://alex-d.github.io/Trumbowyg/documentation.html
+
+        return $inputfields; 
+
+    }
+}
