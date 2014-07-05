@@ -26,7 +26,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
     public static function getModuleInfo() {
         return array(
             'title' => 'Trumbowyg',
-            'version' => 3,
+            'version' => 4,
             'summary' => __('Trumbowyg textarea rich text editor (alpha module)', __FILE__),
         );
     }
@@ -78,6 +78,16 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         $config = array();
         foreach ($this->options as $option) {
             $config[$option] = $this->$option;
+        }
+
+        // localization
+        $lang = $this->_('en'); // Language code
+        if (basename($lang) == $lang) {
+            $lang_file = "trumbowyg/langs/{$lang}.js";
+            if (file_exists($this->config->paths->{$this->className()} . $lang_file)) {
+                $this->config->scripts->add($this->config->urls->{$this->className()} . $lang_file);
+                $config['lang'] = $lang;
+            }
         }
 
         // return output
