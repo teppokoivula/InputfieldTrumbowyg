@@ -6,3 +6,7 @@
 .InputfieldTrumbowyg .trumbowyg-editor {
     width: 100%;
 }
+
+.InputfieldTrumbowyg .trumbowyg-fullscreen {
+    z-index: 110 !important;
+}
