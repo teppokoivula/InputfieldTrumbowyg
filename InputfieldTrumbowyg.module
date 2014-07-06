@@ -26,7 +26,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
     public static function getModuleInfo() {
         return array(
             'title' => 'Trumbowyg',
-            'version' => 4,
+            'version' => 5,
             'summary' => __('Trumbowyg textarea rich text editor (alpha module)', __FILE__),
         );
     }
