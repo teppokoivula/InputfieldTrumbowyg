@@ -26,7 +26,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
     public static function getModuleInfo() {
         return array(
             'title' => 'Trumbowyg',
-            'version' => 7,
+            'version' => 8,
             'summary' => __('Trumbowyg textarea rich text editor (alpha module)', __FILE__),
         );
     }
@@ -43,6 +43,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
             'btns' => 'viewHTML,|,formatting,|,strong,em,underline,strikethrough,|,link,insertImage,|,justifyLeft,justifyCenter,justifyRight,justifyFull,|,unorderedList,orderedList,|,horizontalRule',
             'semantic' => true,
             'autogrow' => false,
+            'plugins' => array(),
         );
     }
 
@@ -63,6 +64,9 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
             $this->$key = $value;
             $this->options[] = $key;
         }
+        // plugins directory
+        $module_dir = substr($this->config->urls->{$this->className}, strlen($this->config->urls->root)-1);
+        $this->plugins_dir = $module_dir . 'trumbowyg/plugins/';
         // get module version
         $info = self::getModuleInfo();
         $this->version = $info['version'];
@@ -76,8 +80,14 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
     public function ___render() {
 
         // load trumbowyg
-        $this->config->scripts->add($this->config->urls->{$this->className()} . "trumbowyg/trumbowyg.min.js?v={$this->version}");
-        $this->config->styles->add($this->config->urls->{$this->className()} . "trumbowyg/design/css/trumbowyg.css?v={$this->version}");
+        $this->config->scripts->add($this->config->urls->{$this->className} . "trumbowyg/trumbowyg.min.js?v=" . $this->version);
+        $this->config->styles->add($this->config->urls->{$this->className} . "trumbowyg/design/css/trumbowyg.css?v=" . $this->version);
+
+        // load plugins
+        foreach ($this->plugins as $plugin) {
+            $file = $this->getPlugin($plugin);
+            if ($file) $this->config->scripts->add($this->config->urls->root . $file . "?v=" . $this->version);
+        }
 
         // config settings
         $config = array();
@@ -92,8 +102,8 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         $lang = $this->_('en'); // Language code
         if (basename($lang) == $lang) {
             $lang_file = "trumbowyg/langs/{$lang}.js";
-            if (file_exists($this->config->paths->{$this->className()} . $lang_file)) {
-                $this->config->scripts->add($this->config->urls->{$this->className()} . $lang_file . "?v=" . $this->version);
+            if (file_exists($this->config->paths->{$this->className} . $lang_file)) {
+                $this->config->scripts->add($this->config->urls->{$this->className} . $lang_file . "?v=" . $this->version);
                 $config['lang'] = $lang;
             }
         }
@@ -165,7 +175,42 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         $field->checked = $this->{$field->name};
         $wrapper->add($field);
 
+        // plugins
+        $field = wire('modules')->get('InputfieldAsmSelect');
+        $field->setAsmSelectOption('hideDeleted', false);
+        $field->name = 'plugins';
+        $field->label = $this->_('Plugins');
+        $field->description = $this->_('List of plugins that Trumbowyg should load.');
+        $field->notes = $this->_('Plugins found from Trumbowyg plugins directory are automatically listed here. Enabling plugins may require manual additions to the button pane.');
+        $plugins = scandir($this->config->paths->root . $this->plugins_dir);
+        foreach ($plugins as $plugin) {
+            if ($this->getPlugin($plugin)) {
+                $field->addOption($plugin);
+            }
+        }
+        $field->value = $this->{$field->name};
+        $wrapper->add($field);
+
         return $fields; 
 
     }
+
+    /**
+     * Get plugin file based on plugin name
+     *
+     * @param string $plugin name of plugin
+     * @return string|null filename or null
+     */
+    protected function getPlugin($plugin) {
+        $file = null;
+        if ($plugin === basename($plugin) && strpos($plugin, '.') !== 0) {
+            $root = $this->config->paths->root;
+            $file = $this->plugins_dir . $plugin . "/trumbowyg." . $plugin;
+            if (is_file($root . $file . ".min.js")) $file .= "$file.min.js";
+            else if (is_file($root . $file . ".js")) $file .= "$file.js";
+            else $file = null;
+        }
+        return $file;
+    }
+
 }
