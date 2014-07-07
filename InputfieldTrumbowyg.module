@@ -26,8 +26,9 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
     public static function getModuleInfo() {
         return array(
             'title' => 'Trumbowyg',
-            'version' => 8,
             'summary' => __('Trumbowyg textarea rich text editor (alpha module)', __FILE__),
+            'author' => 'Teppo Koivula',
+            'version' => 9,
         );
     }
 
@@ -92,7 +93,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         // config settings
         $config = array();
         foreach ($this->options as $option) {
-            if ($option == 'btns' && !is_array($this->$option)) {
+            if ($option == 'btns' && $this->$option && !is_array($this->$option)) {
                 $this->$option = explode(",", $this->$option);
             }
             $config[$option] = $this->$option;
@@ -154,7 +155,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         $field = wire('modules')->get('InputfieldText');
         $field->name = 'btns';
         $field->label = $this->_('Buttons');
-        $field->description = $this->_('Choose the buttons that appears in the button pane. This option is an array containing string values representing the buttons or vertical separators (using the pipe character).');
+        $field->description = $this->_('Choose the buttons that appears in the button pane. This option is a string of comma-separated values representing the buttons or vertical saeparators (using the pipe character).');
         $field->value = $this->btns;
         $wrapper->add($field);
 
