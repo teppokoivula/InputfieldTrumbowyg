@@ -26,7 +26,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
     public static function getModuleInfo() {
         return array(
             'title' => 'Trumbowyg',
-            'version' => 6,
+            'version' => 7,
             'summary' => __('Trumbowyg textarea rich text editor (alpha module)', __FILE__),
         );
     }
@@ -58,10 +58,14 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
      */
     public function __construct() {
         parent::__construct();
+        // store default values for options and option names
         foreach (self::getDefaultData() as $key => $value) {
             $this->$key = $value;
             $this->options[] = $key;
         }
+        // get module version
+        $info = self::getModuleInfo();
+        $this->version = $info['version'];
     }
 
     /**
@@ -72,8 +76,8 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
     public function ___render() {
 
         // load trumbowyg
-        $this->config->scripts->add($this->config->urls->{$this->className()} . "trumbowyg/trumbowyg.min.js");
-        $this->config->styles->add($this->config->urls->{$this->className()} . "trumbowyg/design/css/trumbowyg.css");
+        $this->config->scripts->add($this->config->urls->{$this->className()} . "trumbowyg/trumbowyg.min.js?v={$this->version}");
+        $this->config->styles->add($this->config->urls->{$this->className()} . "trumbowyg/design/css/trumbowyg.css?v={$this->version}");
 
         // config settings
         $config = array();
@@ -89,7 +93,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         if (basename($lang) == $lang) {
             $lang_file = "trumbowyg/langs/{$lang}.js";
             if (file_exists($this->config->paths->{$this->className()} . $lang_file)) {
-                $this->config->scripts->add($this->config->urls->{$this->className()} . $lang_file);
+                $this->config->scripts->add($this->config->urls->{$this->className()} . $lang_file . "?v=" . $this->version);
                 $config['lang'] = $lang;
             }
         }
