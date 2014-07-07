@@ -26,7 +26,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
     public static function getModuleInfo() {
         return array(
             'title' => 'Trumbowyg',
-            'version' => 5,
+            'version' => 6,
             'summary' => __('Trumbowyg textarea rich text editor (alpha module)', __FILE__),
         );
     }
@@ -40,6 +40,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         return array(
             'mobile' => true,
             'tablet' => true,
+            'btns' => 'viewHTML,|,formatting,|,strong,em,underline,strikethrough,|,link,insertImage,|,justifyLeft,justifyCenter,justifyRight,justifyFull,|,unorderedList,orderedList,|,horizontalRule',
             'semantic' => true,
             'autogrow' => false,
         );
@@ -77,6 +78,9 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         // config settings
         $config = array();
         foreach ($this->options as $option) {
+            if ($option == 'btns' && !is_array($this->$option)) {
+                $this->$option = explode(",", $this->$option);
+            }
             $config[$option] = $this->$option;
         }
 
@@ -91,8 +95,8 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         }
 
         // return output
-        $config_json = json_encode($config);
-        return parent::___render() . "<script>$('textarea[name={$this->name}]').trumbowyg({$config_json});</script>";
+        $script = "<script>$('textarea[name={$this->name}]').trumbowyg(" . json_encode($config) . ");</script>";
+        return parent::___render() . $script;
 
     }
 
@@ -131,6 +135,14 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         $wrapper = wire('modules')->get('InputfieldFieldset');
         $wrapper->label = $this->_('Trumbowyg Settings');
         $fields->add($wrapper);
+
+        // buttons
+        $field = wire('modules')->get('InputfieldText');
+        $field->name = 'btns';
+        $field->label = $this->_('Buttons');
+        $field->description = $this->_('Choose the buttons that appears in the button pane. This option is an array containing string values representing the buttons or vertical separators (using the pipe character).');
+        $field->value = $this->btns;
+        $wrapper->add($field);
 
         // semantic
         $field = wire('modules')->get('InputfieldCheckbox');
