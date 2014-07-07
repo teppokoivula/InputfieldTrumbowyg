@@ -253,7 +253,7 @@ $.trumbowyg = {
                 },
                 link:       {
                     dropdown: ['createLink', 'unlink']
-                },
+                }
             }
         }, opts);
 
@@ -340,14 +340,12 @@ $.trumbowyg = {
                 this.$editor.addClass(this.o.prefix + 'reset-css');
 
             if(!this.o.autogrow){
-                this.$editor.css({
-                    height: this.height,
-                    overflow: 'auto'
-                });
-                this.$e.css({
-                    height: this.height,
-                    overflow: 'auto'
-                });
+                $.each([this.$editor, this.$e], $.proxy(function(i, $el){
+                    $el.css({
+                        height: this.height,
+                        overflow: 'auto'
+                    });
+                }, this));
             }
 
             if(this.o.semantic){
@@ -392,8 +390,9 @@ $.trumbowyg = {
 
         // Build the Textarea which contain HTML generated code
         buildTextarea: function(){
-            return $('<textarea name="'+this.$e.attr('id')+'"></textarea>', {
-                height: this.height
+            return $('<textarea/>', {
+                'name': this.$e.attr('id'),
+                'height': this.height
             });
         },
 
@@ -419,17 +418,17 @@ $.trumbowyg = {
                 if(!$.isArray(btn)) btn = [btn];
                 $.each(btn, $.proxy(function(i, btn){
                     try { // Prevent buildBtn error
-                        var li = $('<li/>');
+                        var $li = $('<li/>');
 
-                        if(btn == '|') // It's a separator
-                            li.addClass(pfx + 'separator');
-                        else { // It's a button
-                            if(btn == 'viewHTML')
-                                li.addClass(pfx + 'not-disable');
-                            li.append(t.buildBtn(btn));
+                        if(btn === '|') // It's a separator
+                            $li.addClass(pfx + 'separator');
+                        else if(t.isSupportedBtn(btn)){ // It's a supported button
+                            if(btn === 'viewHTML')
+                                $li.addClass(pfx + 'not-disable');
+                            $li.append(t.buildBtn(btn));
                         }
 
-                        t.$btnPane.append(li);
+                        t.$btnPane.append($li);
                     } catch(e){}
                 }, t));
             }, t));
@@ -442,50 +441,54 @@ $.trumbowyg = {
 
             // Add the fullscreen button
             if(t.o.fullscreenable)
-                $liRight.append(t.buildRightBtn('fullscreen').on('click', $.proxy(function(e){
-                    var cssClass = pfx + 'fullscreen';
-                    t.$box.toggleClass(cssClass);
+                $liRight
+                    .append(t.buildRightBtn('fullscreen')
+                    .on('click', $.proxy(function(e){
+                        var cssClass = pfx + 'fullscreen';
+                        t.$box.toggleClass(cssClass);
 
-                    if(t.$box.hasClass(cssClass)){
-                        $('body').css('overflow', 'hidden');
-                        t.$box.css({
-                            position: 'fixed',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            margin: 0,
-                            padding: 0,
-                            zIndex: 10
-                        });
-                        $([t.$editor, t.$e]).each(function(){
-                            $(this).css({
+                        if(t.$box.hasClass(cssClass)){
+                            $('body').css('overflow', 'hidden');
+                            t.$box.css({
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
                                 height: '100%',
-                                overflow: 'auto'
+                                margin: 0,
+                                padding: 0,
+                                zIndex: 99999
                             });
-                        });
-                        t.$btnPane.css('width', '100%');
-                    } else {
-                        $('body').css('overflow', 'auto');
-                        t.$box.removeAttr('style');
-                        if(!t.o.autogrow){
-                            h = t.height;
                             $([t.$editor, t.$e]).each(function(){
-                                $(t).css('height', h);
+                                $(this).css({
+                                    height: '100%',
+                                    overflow: 'auto'
+                                });
                             });
+                            t.$btnPane.css('width', '100%');
+                        } else {
+                            $('body').css('overflow', 'auto');
+                            t.$box.removeAttr('style');
+                            if(!t.o.autogrow){
+                                h = t.height;
+                                $([t.$editor, t.$e]).each(function(i, $el){
+                                    $el.css('height', h);
+                                });
+                            }
                         }
-                    }
-                    $(window).trigger('scroll');
-                }, t)));
+                        $(window).trigger('scroll');
+                    }, t)));
 
             // Build and add close button
             if(t.o.closable)
-                $liRight.append(t.buildRightBtn('close').on('click', $.proxy(function(e){
-                    var cssClass = pfx + 'fullscreen';
-                    if(t.$box.hasClass(cssClass))
-                        $('body').css('overflow', 'auto');
-                    t.destroy();
-                }, t)));
+                $liRight
+                    .append(t.buildRightBtn('close')
+                    .on('click', $.proxy(function(e){
+                        var cssClass = pfx + 'fullscreen';
+                        if(t.$box.hasClass(cssClass))
+                            $('body').css('overflow', 'auto');
+                        t.destroy();
+                    }, t)));
 
 
             // Add right li only if isn't empty
@@ -496,25 +499,27 @@ $.trumbowyg = {
         },
 
 
-        // Build a button and this action
+        // Build a button and his action
         buildBtn: function(name){
-            var pfx = this.o.prefix;
-            var btnDef = this.o.btnsDef[name];
-            var that = this;
-            var btn = $('<a/>', {
-                href: 'javascript:void(null);',
+            var pfx = this.o.prefix,
+                btnDef = this.o.btnsDef[name],
+                t = this,
+                textDef = this.lang[name] || name.charAt(0).toUpperCase() + name.slice(1);
+
+            var $btn = $('<button/>', {
+                'type': 'button',
                 'class': pfx + name +'-button' + (btnDef.ico ? ' '+ pfx + btnDef.ico +'-button' : ''),
-                text: btnDef.text || btnDef.title || this.lang[name] || name.charAt(0).toUpperCase() + name.slice(1),
-                title: btnDef.title || btnDef.text || this.lang[name] || name.charAt(0).toUpperCase() + name.slice(1),
-                mousedown: function(e){
-                    if(!btnDef.dropdown || that.$box.find('.'+name+'-'+pfx + 'dropdown').is(':hidden'))
+                'text': btnDef.text || btnDef.title || textDef,
+                'title': btnDef.title || btnDef.text || textDef,
+                'mousedown': function(e){
+                    if(!btnDef.dropdown || t.$box.find('.'+name+'-'+pfx + 'dropdown').is(':hidden'))
                         $('body').trigger('mousedown');
 
-                    if(that.$btnPane.hasClass(pfx + 'disable') 
+                    if(t.$btnPane.hasClass(pfx + 'disable')
                         && !$(this).parent().hasClass(pfx + 'not-disable'))
                         return false;
 
-                    that.execCommand((btnDef.dropdown ? 'dropdown' : false) || btnDef.func || name,
+                    t.execCommand((btnDef.dropdown ? 'dropdown' : false) || btnDef.func || name,
                                      btnDef.param || name);
 
                     e.stopPropagation();
@@ -526,29 +531,28 @@ $.trumbowyg = {
 
 
             if(btnDef.dropdown){
-                btn.addClass(pfx + 'open-dropdown');
+                $btn.addClass(pfx + 'open-dropdown');
                 var cssClass = pfx + 'dropdown';
 
                 var dropdown = $('<div/>', {
                     'class': name + '-' + cssClass + ' ' + cssClass + ' ' + pfx + 'fixed-top'
                 });
-                dropdown.data('visible', false);
-                for (var i = 0, c = btnDef.dropdown.length; i < c; i++) {
-                    if(that.o.btnsDef[btnDef.dropdown[i]])
-                        dropdown.append(that.buildSubBtn(btnDef.dropdown[i]));
+                for(var i = 0, c = btnDef.dropdown.length; i < c; i++){
+                    if(t.o.btnsDef[btnDef.dropdown[i]] && t.isSupportedBtn(btnDef.dropdown[i]))
+                        dropdown.append(t.buildSubBtn(btnDef.dropdown[i]));
                 }
                 this.$box.append(dropdown.hide());
             }
 
-            return btn;
+            return $btn;
         },
         // Build a button for dropdown menu
         buildSubBtn: function(name){
             var btnDef = this.o.btnsDef[name];
-            return $('<a/>', {
-                href: 'javascript:void(null);',
-                text: btnDef.text || btnDef.title || this.lang[name] || name,
-                mousedown: $.proxy(function(e){
+            return $('<button/>', {
+                'type': 'button',
+                'text': btnDef.text || btnDef.title || this.lang[name] || name,
+                'mousedown': $.proxy(function(e){
                     $('body').trigger('mousedown');
 
                     this.execCommand(btnDef.func || name,
@@ -562,12 +566,16 @@ $.trumbowyg = {
         },
         // Build a button for right li
         buildRightBtn: function(name){
-            return $('<a/>', {
-                href: 'javascript:void(null);',
+            return $('<button/>', {
+                'type': 'button',
                 'class': this.o.prefix + name+'-button',
-                title: this.lang[name],
-                text: this.lang[name]
+                'title': this.lang[name],
+                'text': this.lang[name]
             });
+        },
+        // Check if button is supported
+        isSupportedBtn: function(btn){
+            return typeof this.o.btnsDef[btn].isSupported !== 'function' || this.o.btnsDef[btn].isSupported()
         },
 
         // Build overlay for modal box
@@ -649,7 +657,7 @@ $.trumbowyg = {
                                        .val(html)
                                        .removeClass(this.o.prefix + 'textarea')
                                        .show());
-            else 
+            else
                 this.$box.after(this.$editor.css({height: this.height})
                                             .removeClass(this.o.prefix + 'editor')
                                             .attr('contenteditable', false)
@@ -805,6 +813,7 @@ $.trumbowyg = {
                 }
             }, function(values){
                 that.execCommand('insertImage', values['url']);
+                $(['img[src="', values['url'], '"]:not([alt])'].join(''), that.$box).attr('alt', values['alt']);
                 return true;
             });
         },
@@ -929,10 +938,10 @@ $.trumbowyg = {
             return $modal;
         },
         buildModalBtn: function(name, modal){
-            return $('<input/>', {
+            return $('<button/>', {
                 'class': this.o.prefix + 'modal-button ' + this.o.prefix + 'modal-' + name,
-                value: this.lang[name] || name,
-                type: name
+                'type': name,
+                'text': this.lang[name] || name
             }).appendTo(modal.find('form'));
         },
         // close current modal box
@@ -1007,7 +1016,7 @@ $.trumbowyg = {
 
                 if(valid) {
                     that.restoreSelection();
-                    
+
                     if(cmd(values, fields)) {
                         that.syncCode();
                         that.closeModal();
@@ -1057,7 +1066,7 @@ $.trumbowyg = {
                 }
             }
         },
-        
+
 
 
         // Return true if must enable Trumbowyg on this mobile device
