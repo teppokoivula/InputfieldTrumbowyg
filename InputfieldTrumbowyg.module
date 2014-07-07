@@ -28,7 +28,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
             'title' => 'Trumbowyg',
             'summary' => __('Trumbowyg textarea rich text editor (alpha module)', __FILE__),
             'author' => 'Teppo Koivula',
-            'version' => 9,
+            'version' => '0.0.10',
         );
     }
 
@@ -155,7 +155,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         $field = wire('modules')->get('InputfieldText');
         $field->name = 'btns';
         $field->label = $this->_('Buttons');
-        $field->description = $this->_('Choose the buttons that appears in the button pane. This option is a string of comma-separated values representing the buttons or vertical saeparators (using the pipe character).');
+        $field->description = $this->_('Choose the buttons that appear in the button pane. This option is a string of comma-separated values representing buttons or vertical separators (using the pipe character).');
         $field->value = $this->btns;
         $wrapper->add($field);
 
@@ -163,8 +163,8 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         $field = wire('modules')->get('InputfieldCheckbox');
         $field->name = 'semantic';
         $field->label = $this->_('Enable semantic output');
-        $field->description = $this->_('Generates a better, more semantic oriented HTML (i.e. <em> instead of <i>, <strong> intsead of <b>, etc.).');
-        $field->notes = $this->_('ALPHA: This feature is in development and not completly functional.');
+        $field->description = $this->_('Generates a better, more semantic HTML (i.e. <em> instead of <i>, <strong> intsead of <b>, etc.).');
+        $field->notes = $this->_('ALPHA: This feature is in development and not completely functional.');
         $field->checked = $this->{$field->name};
         $wrapper->add($field);
 
@@ -172,7 +172,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         $field = wire('modules')->get('InputfieldCheckbox');
         $field->name = 'autogrow';
         $field->label = $this->_('Enable auto grow');
-        $field->description = $this->_('The text editon zone can extend itself when writing a long text.');
+        $field->description = $this->_('The editor textarea can extend itself automatically when writing a long text.');
         $field->checked = $this->{$field->name};
         $wrapper->add($field);
 
