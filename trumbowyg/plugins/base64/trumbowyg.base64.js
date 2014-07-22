@@ -1,5 +1,5 @@
 /* ===========================================================
- * trumbowyg.base64.js
+ * trumbowyg.base64.js v1.0
  * Base64 plugin for Trumbowyg
  * http://alex-d.github.com/Trumbowyg
  * ===========================================================
@@ -54,6 +54,7 @@
 
                                 fReader.onloadend = function () {
                                     tbw.execCommand('insertImage', fReader.result);
+                                    $(['img[src="', fReader.result, '"]:not([alt])'].join(''), tbw.$box).attr('alt', values['alt']);
                                     tbw.closeModal();
                                 }
 

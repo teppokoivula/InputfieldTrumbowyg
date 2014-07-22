@@ -1,5 +1,5 @@
 ﻿/* ===========================================================
- * trumbowyg.js
+ * trumbowyg.js v1.0
  * Core code of Trumbowyg plugin
  * http://alex-d.github.com/Trumbowyg
  * ===========================================================
@@ -795,6 +795,13 @@ $.trumbowyg = {
                 }
             }, function(values){
                 that.execCommand('createLink', values['url']);
+                var link = $(['a[href="', values['url'], '"]:not([title])'].join(''), that.$box);
+                if($.trim(values['text']).length !== 0)
+                    link.text(values['text']);
+
+                if($.trim(values['title']).length !== 0)
+                    link.attr('title', values['title']);
+
                 return true;
             });
         },

@@ -1,3 +1,11 @@
+/* ===========================================================
+ * fi.js
+ * Finnish translation for Trumbowyg
+ * http://alex-d.github.com/Trumbowyg
+ * ===========================================================
+ * Author : Teppo Koivula
+ */
+
 $.trumbowyg.langs.fi = {
     viewHTML:       "Näytä HTML",
 
