@@ -28,7 +28,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
             'title' => 'Trumbowyg',
             'summary' => __('Trumbowyg textarea rich text editor (alpha module)', __FILE__),
             'author' => 'Teppo Koivula',
-            'version' => '0.0.10',
+            'version' => '2.4.2',
         );
     }
 
@@ -67,7 +67,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         }
         // plugins directory
         $module_dir = substr($this->config->urls->{$this->className}, strlen($this->config->urls->root)-1);
-        $this->plugins_dir = $module_dir . 'trumbowyg/plugins/';
+        $this->plugins_dir = $module_dir . 'trumbowyg/dist/plugins/';
         // get module version
         $info = self::getModuleInfo();
         $this->version = $info['version'];
@@ -81,13 +81,13 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
     public function ___render() {
 
         // load trumbowyg
-        $this->config->scripts->add($this->config->urls->{$this->className} . "trumbowyg/trumbowyg.min.js?v=" . $this->version);
-        $this->config->styles->add($this->config->urls->{$this->className} . "trumbowyg/design/css/trumbowyg.css?v=" . $this->version);
+        $this->config->scripts->add($this->config->urls->{$this->className} . "trumbowyg/dist/trumbowyg.min.js?v=" . $this->version);
+        $this->config->styles->add($this->config->urls->{$this->className} . "trumbowyg/dist/ui/trumbowyg.min.css?v=" . $this->version);
 
         // load plugins
         foreach ($this->plugins as $plugin) {
             $file = $this->getPlugin($plugin);
-            if ($file) $this->config->scripts->add($this->config->urls->root . $file . "?v=" . $this->version);
+            if ($file) $this->config->scripts->add($file . "?v=" . $this->version);
         }
 
         // config settings
@@ -102,7 +102,7 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         // localization
         $lang = $this->_('en'); // Language code
         if (basename($lang) == $lang) {
-            $lang_file = "trumbowyg/langs/{$lang}.js";
+            $lang_file = "trumbowyg/dist/langs/{$lang}.js";
             if (file_exists($this->config->paths->{$this->className} . $lang_file)) {
                 $this->config->scripts->add($this->config->urls->{$this->className} . $lang_file . "?v=" . $this->version);
                 $config['lang'] = $lang;
@@ -206,9 +206,9 @@ class InputfieldTrumbowyg extends InputfieldTextarea {
         $file = null;
         if ($plugin === basename($plugin) && strpos($plugin, '.') !== 0) {
             $root = $this->config->paths->root;
-            $file = $this->plugins_dir . $plugin . "/trumbowyg." . $plugin;
-            if (is_file($root . $file . ".min.js")) $file .= "$file.min.js";
-            else if (is_file($root . $file . ".js")) $file .= "$file.js";
+            $file = $this->plugins_dir . $plugin . "/trumbowyg.{$plugin}";
+            if (is_file($root . $file . ".min.js")) $file .= ".min.js";
+            else if (is_file($root . $file . ".js")) $file .= ".js";
             else $file = null;
         }
         return $file;

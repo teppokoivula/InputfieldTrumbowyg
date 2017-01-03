@@ -3,8 +3,9 @@ Trumbowyg inputfield module for ProcessWire CMS/CMF
 
 Trumbowyg inputfield module for ProcessWire CMS/CMF
 Copyright(c) 2014 Teppo Koivula
+Updated to v2.4.2 2017 by gebeer
 
-Trumbowyg Copyright (c) 2012-2014 Alexandre Demode (Alex-D)
+Trumbowyg Copyright (c) 2012-2017 Alexandre Demode (Alex-D)
 http://alex-d.github.io/Trumbowyg/
 
 ## Trumbowyg
